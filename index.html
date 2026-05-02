@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bills Tracker</title>
+  <style>
+    :root {
+      --color-a: #2563eb;
+      --color-a-light: #dbeafe;
+      --color-a-mid: #93c5fd;
+      --color-b: #ea580c;
+      --color-b-light: #ffedd5;
+      --color-b-mid: #fdba74;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-border: #16a34a;
+      --success-text: #15803d;
+      --danger: #dc2626;
+      --radius: 0.625rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1rem;
+      font-size: 15px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    header p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.125rem;
+      margin-bottom: 0.875rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.875rem;
+    }
+
+    /* ── Settlement ── */
+    .settlement-box {
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      border: 2px solid transparent;
+    }
+
+    .settlement-box.settled {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+
+    .settlement-box.owes-a {
+      background: var(--color-a-light);
+      border-color: var(--color-a);
+    }
+
+    .settlement-box.owes-b {
+      background: var(--color-b-light);
+      border-color: var(--color-b);
+    }
+
+    .settlement-msg {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .settlement-amount {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin: 0.25rem 0;
+      letter-spacing: -0.02em;
+    }
+
+    .owes-a .settlement-amount  { color: var(--color-a); }
+    .owes-b .settlement-amount  { color: var(--color-b); }
+    .settled .settlement-amount { color: var(--success-text); }
+
+    .settlement-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.625rem;
+      margin-top: 0.875rem;
+    }
+
+    .stat {
+      border-radius: calc(var(--radius) - 2px);
+      padding: 0.625rem 0.75rem;
+      text-align: center;
+    }
+
+    .stat.a { background: var(--color-a-light); }
+    .stat.b { background: var(--color-b-light); }
+
+    .stat-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat.a .stat-name { color: var(--color-a); }
+    .stat.b .stat-name { color: var(--color-b); }
+
+    .stat-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .stat.a .stat-amount { color: var(--color-a); }
+    .stat.b .stat-amount { color: var(--color-b); }
+
+    .stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .total-line {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.625rem;
+    }
+
+    /* ── Form ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.625rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    input, select {
+      padding: 0.5rem 0.625rem;
+      border: 1.5px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 0.875rem;
+      color: var(--text);
+      background: white;
+      width: 100%;
+      appearance: auto;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--color-a);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .btn:hover { opacity: 0.88; }
+
+    .btn-primary {
+      background: var(--color-a);
+      color: white;
+      width: 100%;
+      padding: 0.625rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-ghost {
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1.5px solid var(--border);
+      padding: 0.45rem 0.875rem;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      line-height: 1;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .btn-delete:hover {
+      color: var(--danger);
+      background: #fee2e2;
+    }
+
+    /* ── Filter ── */
+    details > summary {
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    details > summary::-webkit-details-marker { display: none; }
+
+    .summary-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .summary-chevron {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    details[open] .summary-chevron { transform: rotate(180deg); }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.625rem;
+      margin-top: 0.875rem;
+      align-items: end;
+    }
+
+    .filter-active-badge {
+      display: inline-block;
+      background: var(--color-a-light);
+      color: var(--color-a);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 0 -1.125rem;
+      padding: 0 1.125rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 480px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0 0.75rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    thead th:last-child { text-align: right; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg); }
+
+    td {
+      padding: 0.625rem 0.75rem;
+      vertical-align: middle;
+    }
+
+    td:last-child { text-align: right; }
+
+    .person-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-a {
+      background: var(--color-a-light);
+      color: var(--color-a);
+    }
+
+    .badge-b {
+      background: var(--color-b-light);
+      color: var(--color-b);
+    }
+
+    .row-a td:first-child {
+      border-left: 3px solid var(--color-a);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    .row-b td:first-child {
+      border-left: 3px solid var(--color-b);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    .amount-cell {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bill-type {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .empty-row td {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      font-size: 0.875rem;
+      border-left: none !important;
+    }
+
+    /* ── Settings ── */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.875rem;
+    }
+
+    .name-preview-a {
+      font-size: 0.7rem;
+      color: var(--color-a);
+      margin-top: 0.2rem;
+      font-weight: 500;
+    }
+
+    .name-preview-b {
+      font-size: 0.7rem;
+      color: var(--color-b);
+      margin-top: 0.2rem;
+      font-weight: 500;
+    }
+
+    @media (max-width: 500px) {
+      body { padding: 0.75rem; font-size: 14px; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Bills Tracker</h1>
+  <p>Shared household bill splitting</p>
+</header>
+
+<!-- Settlement -->
+<div class="card" id="settlementCard">
+  <div class="card-title">Settlement</div>
+  <div id="settlementContent"></div>
+</div>
+
+<!-- Add Payment -->
+<div class="card">
+  <div class="card-title">Add Payment</div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="inp-person">Who paid</label>
+      <select id="inp-person"></select>
+    </div>
+    <div class="form-group">
+      <label for="inp-bill">Bill type</label>
+      <select id="inp-bill">
+        <option value="Arnona">Arnona</option>
+        <option value="Water">Water</option>
+        <option value="Electricity">Electricity</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="inp-amount">Amount (&#8362;)</label>
+      <input type="number" id="inp-amount" placeholder="0.00" min="0" step="0.01">
+    </div>
+    <div class="form-group">
+      <label for="inp-date">Payment date</label>
+      <input type="date" id="inp-date">
+    </div>
+    <div class="form-group">
+      <label for="inp-period-month">Billing period</label>
+      <select id="inp-period-month"></select>
+    </div>
+    <div class="form-group">
+      <label for="inp-period-year">&nbsp;</label>
+      <input type="number" id="inp-period-year" placeholder="2025" min="2000" max="2099">
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="addPayment()">Add Payment</button>
+</div>
+
+<!-- Filter -->
+<div class="card">
+  <details id="filterDetails">
+    <summary>
+      <div class="summary-inner">
+        <span class="card-title" style="margin:0">Filter by period</span>
+        <span id="filterBadge" style="display:none" class="filter-active-badge">active</span>
+      </div>
+      <span class="summary-chevron">&#9660;</span>
+    </summary>
+    <div class="filter-grid">
+      <div class="form-group">
+        <label for="f-from-month">From month</label>
+        <select id="f-from-month"><option value="">Any</option></select>
+      </div>
+      <div class="form-group">
+        <label for="f-from-year">From year</label>
+        <input type="number" id="f-from-year" placeholder="2025" min="2000" max="2099">
+      </div>
+      <div class="form-group">
+        <label for="f-to-month">To month</label>
+        <select id="f-to-month"><option value="">Any</option></select>
+      </div>
+      <div class="form-group">
+        <label for="f-to-year">To year</label>
+        <input type="number" id="f-to-year" placeholder="2025" min="2000" max="2099">
+      </div>
+      <div class="form-group" style="justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="clearFilter()">Clear filter</button>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- Bills Table -->
+<div class="card">
+  <div class="card-title">Payments <span id="rowCount" style="font-weight:400;color:var(--text-muted)"></span></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Who paid</th>
+          <th>Bill</th>
+          <th>Amount</th>
+          <th>Period</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="billsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="card">
+  <details>
+    <summary>
+      <div class="summary-inner">
+        <span class="card-title" style="margin:0">Settings</span>
+      </div>
+      <span class="summary-chevron">&#9660;</span>
+    </summary>
+    <div class="settings-grid">
+      <div class="form-group">
+        <label for="s-name-a">Person A name</label>
+        <input type="text" id="s-name-a" placeholder="Person A" maxlength="30">
+        <div class="name-preview-a" id="preview-a"></div>
+      </div>
+      <div class="form-group">
+        <label for="s-name-b">Person B name</label>
+        <input type="text" id="s-name-b" placeholder="Person B" maxlength="30">
+        <div class="name-preview-b" id="preview-b"></div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+  /* ── Constants ── */
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+
+  const MONTH_OPTS = MONTHS.map((m, i) =>
+    `<option value="${i + 1}">${m}</option>`).join('');
+
+  const MONTH_OPTS_ANY = '<option value="">Any</option>' + MONTH_OPTS;
+
+  /* ── State ── */
+  let payments = [];
+  let settings = { nameA: 'Person A', nameB: 'Person B' };
+
+  function load() {
+    try {
+      payments = JSON.parse(localStorage.getItem('bt_payments') || '[]');
+      settings = JSON.parse(localStorage.getItem('bt_settings') || '{}');
+      settings.nameA = settings.nameA || 'Person A';
+      settings.nameB = settings.nameB || 'Person B';
+    } catch(e) {}
+  }
+
+  function savePayments() {
+    localStorage.setItem('bt_payments', JSON.stringify(payments));
+  }
+
+  function saveSettings() {
+    localStorage.setItem('bt_settings', JSON.stringify(settings));
+  }
+
+  /* ── Helpers ── */
+  function name(p) { return p === 'A' ? settings.nameA : settings.nameB; }
+
+  function fmt(n) {
+    return '₪' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function fmtPeriod(month, year) {
+    return `${MONTHS[month - 1]} ${year}`;
+  }
+
+  function periodVal(month, year) {
+    return parseInt(year) * 12 + parseInt(month);
+  }
+
+  /* ── Filter ── */
+  function getFilter() {
+    return {
+      fromMonth: document.getElementById('f-from-month').value,
+      fromYear:  document.getElementById('f-from-year').value.trim(),
+      toMonth:   document.getElementById('f-to-month').value,
+      toYear:    document.getElementById('f-to-year').value.trim(),
+    };
+  }
+
+  function isFilterActive(f) {
+    return f.fromMonth || f.fromYear || f.toMonth || f.toYear;
+  }
+
+  function inRange(p, f) {
+    const v = periodVal(p.periodMonth, p.periodYear);
+    let lo = -Infinity, hi = Infinity;
+    if (f.fromYear) {
+      lo = periodVal(f.fromMonth || 1, f.fromYear);
+    }
+    if (f.toYear) {
+      hi = periodVal(f.toMonth || 12, f.toYear);
+    }
+    return v >= lo && v <= hi;
+  }
+
+  function clearFilter() {
+    ['f-from-month','f-from-year','f-to-month','f-to-year'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = '';
+    });
+    render();
+  }
+
+  /* ── Add / Delete ── */
+  function addPayment() {
+    const person      = document.getElementById('inp-person').value;
+    const billType    = document.getElementById('inp-bill').value;
+    const amountStr   = document.getElementById('inp-amount').value;
+    const dateVal     = document.getElementById('inp-date').value;
+    const periodMonth = parseInt(document.getElementById('inp-period-month').value);
+    const periodYear  = parseInt(document.getElementById('inp-period-year').value);
+    const amount      = parseFloat(amountStr);
+
+    if (!amountStr || isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid amount greater than 0.'); return;
+    }
+    if (!dateVal) {
+      alert('Please select a payment date.'); return;
+    }
+    if (!periodYear || periodYear < 2000 || periodYear > 2099) {
+      alert('Please enter a valid period year.'); return;
+    }
+
+    payments.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      person, billType, amount,
+      paymentDate: dateVal,
+      periodMonth, periodYear
+    });
+
+    savePayments();
+    document.getElementById('inp-amount').value = '';
+    render();
+  }
+
+  function deletePayment(id) {
+    if (!confirm('Delete this payment?')) return;
+    payments = payments.filter(p => p.id !== id);
+    savePayments();
+    render();
+  }
+
+  /* ── Render settlement ── */
+  function renderSettlement(filtered) {
+    const totalA = filtered.filter(p => p.person === 'A').reduce((s, p) => s + p.amount, 0);
+    const totalB = filtered.filter(p => p.person === 'B').reduce((s, p) => s + p.amount, 0);
+    const total  = totalA + totalB;
+    const each   = total / 2;
+    const diff   = Math.round(Math.abs(totalA - totalB) * 100 / 2) / 100;
+
+    const nameA = name('A'), nameB = name('B');
+
+    let cls, msg, amountHtml;
+
+    if (total === 0) {
+      cls        = 'settled';
+      msg        = 'No payments to show for this period.';
+      amountHtml = '';
+    } else if (diff < 0.01) {
+      cls        = 'settled';
+      msg        = "You're settled up!";
+      amountHtml = '<div class="settlement-amount">&#8362;0</div>';
+    } else if (totalA > totalB) {
+      cls        = 'owes-a';
+      msg        = `<strong>${nameB}</strong> owes <strong>${nameA}</strong>`;
+      amountHtml = `<div class="settlement-amount">${fmt(diff)}</div>`;
+    } else {
+      cls        = 'owes-b';
+      msg        = `<strong>${nameA}</strong> owes <strong>${nameB}</strong>`;
+      amountHtml = `<div class="settlement-amount">${fmt(diff)}</div>`;
+    }
+
+    const statsHtml = total > 0 ? `
+      <div class="stats-row">
+        <div class="stat a">
+          <div class="stat-name">${nameA}</div>
+          <div class="stat-amount">${fmt(totalA)}</div>
+          <div class="stat-sub">paid</div>
+        </div>
+        <div class="stat b">
+          <div class="stat-name">${nameB}</div>
+          <div class="stat-amount">${fmt(totalB)}</div>
+          <div class="stat-sub">paid</div>
+        </div>
+      </div>
+      <div class="total-line">Total: ${fmt(total)} &nbsp;&middot;&nbsp; Each owes: ${fmt(each)}</div>
+    ` : '';
+
+    document.getElementById('settlementContent').innerHTML = `
+      <div class="settlement-box ${cls}">
+        <div class="settlement-msg">${msg}</div>
+        ${amountHtml}
+      </div>
+      ${statsHtml}
+    `;
+  }
+
+  /* ── Render table ── */
+  function renderTable(filtered) {
+    const tbody = document.getElementById('billsBody');
+    const count = document.getElementById('rowCount');
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No payments found.</td></tr>`;
+      count.textContent = '';
+      return;
+    }
+
+    count.textContent = `(${filtered.length})`;
+
+    tbody.innerHTML = filtered.map(p => `
+      <tr class="row-${p.person.toLowerCase()}">
+        <td>${fmtDate(p.paymentDate)}</td>
+        <td><span class="person-badge badge-${p.person.toLowerCase()}">${name(p.person)}</span></td>
+        <td class="bill-type">${p.billType}</td>
+        <td class="amount-cell">${fmt(p.amount)}</td>
+        <td class="bill-type">${fmtPeriod(p.periodMonth, p.periodYear)}</td>
+        <td><button class="btn-delete" title="Delete" onclick="deletePayment('${p.id}')">&#10005;</button></td>
+      </tr>
+    `).join('');
+  }
+
+  /* ── Main render ── */
+  function render() {
+    const f = getFilter();
+    const active = isFilterActive(f);
+    const filtered = active ? payments.filter(p => inRange(p, f)) : payments;
+
+    document.getElementById('filterBadge').style.display = active ? 'inline-block' : 'none';
+
+    // Update person select labels
+    const pSel = document.getElementById('inp-person');
+    pSel.options[0].text = settings.nameA;
+    pSel.options[1].text = settings.nameB;
+
+    // Name previews
+    document.getElementById('preview-a').textContent = settings.nameA;
+    document.getElementById('preview-b').textContent = settings.nameB;
+
+    renderSettlement(filtered);
+    renderTable(filtered);
+  }
+
+  /* ── Init ── */
+  function init() {
+    load();
+
+    // Populate month selects
+    document.getElementById('inp-period-month').innerHTML = MONTH_OPTS;
+    document.getElementById('f-from-month').innerHTML     = MONTH_OPTS_ANY;
+    document.getElementById('f-to-month').innerHTML       = MONTH_OPTS_ANY;
+
+    // Person select
+    document.getElementById('inp-person').innerHTML =
+      '<option value="A">Person A</option><option value="B">Person B</option>';
+
+    // Default form values
+    const now = new Date();
+    document.getElementById('inp-date').value          = now.toISOString().split('T')[0];
+    document.getElementById('inp-period-month').value  = now.getMonth() + 1;
+    document.getElementById('inp-period-year').value   = now.getFullYear();
+
+    // Settings fields
+    document.getElementById('s-name-a').value = settings.nameA;
+    document.getElementById('s-name-b').value = settings.nameB;
+
+    // Settings listeners
+    document.getElementById('s-name-a').addEventListener('input', e => {
+      settings.nameA = e.target.value.trim() || 'Person A';
+      saveSettings();
+      render();
+    });
+
+    document.getElementById('s-name-b').addEventListener('input', e => {
+      settings.nameB = e.target.value.trim() || 'Person B';
+      saveSettings();
+      render();
+    });
+
+    // Filter change listeners
+    ['f-from-month','f-from-year','f-to-month','f-to-year'].forEach(id => {
+      document.getElementById(id).addEventListener('change', render);
+      document.getElementById(id).addEventListener('input',  render);
+    });
+
+    // Allow Enter in amount field to submit
+    document.getElementById('inp-amount').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addPayment();
+    });
+
+    render();
+  }
+
+  init();
+</script>
+</body>
+</html>
