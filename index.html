@@ -8,10 +8,11 @@
     :root {
       --color-a: #2563eb;
       --color-a-light: #dbeafe;
-      --color-a-mid: #93c5fd;
       --color-b: #ea580c;
       --color-b-light: #ffedd5;
-      --color-b-mid: #fdba74;
+      --color-settle: #b45309;
+      --color-settle-light: #fef3c7;
+      --color-settle-border: #d97706;
       --bg: #f1f5f9;
       --card: #ffffff;
       --text: #1e293b;
@@ -20,6 +21,7 @@
       --success-bg: #dcfce7;
       --success-border: #16a34a;
       --success-text: #15803d;
+      --emerald: #059669;
       --danger: #dc2626;
       --radius: 0.625rem;
     }
@@ -69,12 +71,13 @@
       margin-bottom: 0.875rem;
     }
 
-    /* ── Settlement ── */
+    /* ── Settlement result box ── */
     .settlement-box {
       border-radius: var(--radius);
       padding: 1.25rem 1rem;
       text-align: center;
       border: 2px solid transparent;
+      margin-top: 0.875rem;
     }
 
     .settlement-box.settled {
@@ -109,17 +112,11 @@
     .owes-b .settlement-amount  { color: var(--color-b); }
     .settled .settlement-amount { color: var(--success-text); }
 
-    .settlement-sub {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-
+    /* ── Stats row ── */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.625rem;
-      margin-top: 0.875rem;
     }
 
     .stat {
@@ -137,6 +134,9 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .stat.a .stat-name { color: var(--color-a); }
@@ -145,6 +145,7 @@
     .stat-amount {
       font-size: 1.2rem;
       font-weight: 700;
+      font-variant-numeric: tabular-nums;
     }
 
     .stat.a .stat-amount { color: var(--color-a); }
@@ -159,10 +160,46 @@
       text-align: center;
       font-size: 0.78rem;
       color: var(--text-muted);
-      margin-top: 0.625rem;
+      margin-top: 0.5rem;
     }
 
-    /* ── Form ── */
+    /* ── Settlement payments breakdown ── */
+    .settle-section {
+      margin-top: 0.75rem;
+      padding: 0.625rem 0.875rem;
+      background: var(--color-settle-light);
+      border: 1px solid #fde68a;
+      border-radius: calc(var(--radius) - 2px);
+    }
+
+    .settle-section-title {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-settle);
+      margin-bottom: 0.375rem;
+    }
+
+    .settle-item {
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.15rem 0;
+      color: var(--text);
+    }
+
+    .settle-item strong {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .arrow-text {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* ── Forms ── */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -198,6 +235,24 @@
       box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
+    input[readonly] {
+      background: var(--bg);
+      color: var(--text-muted);
+      cursor: default;
+    }
+
+    input[readonly]:focus {
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    .form-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
     .btn {
       padding: 0.5rem 1rem;
       border: none;
@@ -205,13 +260,22 @@
       cursor: pointer;
       font-size: 0.875rem;
       font-weight: 500;
-      transition: opacity 0.15s, box-shadow 0.15s;
+      transition: opacity 0.15s;
     }
 
-    .btn:hover { opacity: 0.88; }
+    .btn:hover { opacity: 0.85; }
 
     .btn-primary {
       background: var(--color-a);
+      color: white;
+      width: 100%;
+      padding: 0.625rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-emerald {
+      background: var(--emerald);
       color: white;
       width: 100%;
       padding: 0.625rem;
@@ -243,7 +307,7 @@
       background: #fee2e2;
     }
 
-    /* ── Filter ── */
+    /* ── Collapsible details ── */
     details > summary {
       cursor: pointer;
       user-select: none;
@@ -269,6 +333,7 @@
 
     details[open] .summary-chevron { transform: rotate(180deg); }
 
+    /* ── Filter ── */
     .filter-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -298,7 +363,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
-      min-width: 480px;
+      min-width: 500px;
     }
 
     thead th {
@@ -329,6 +394,32 @@
 
     td:last-child { text-align: right; }
 
+    /* Bill rows */
+    .row-a td:first-child {
+      border-left: 3px solid var(--color-a);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    .row-b td:first-child {
+      border-left: 3px solid var(--color-b);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    /* Settlement rows */
+    .row-settle {
+      background: #fffbeb;
+    }
+
+    .row-settle:hover {
+      background: #fef9c3 !important;
+    }
+
+    .row-settle td:first-child {
+      border-left: 3px solid var(--color-settle-border);
+      padding-left: calc(0.75rem - 3px);
+    }
+
+    /* Badges */
     .person-badge {
       display: inline-block;
       padding: 0.15rem 0.5rem;
@@ -348,14 +439,15 @@
       color: var(--color-b);
     }
 
-    .row-a td:first-child {
-      border-left: 3px solid var(--color-a);
-      padding-left: calc(0.75rem - 3px);
-    }
-
-    .row-b td:first-child {
-      border-left: 3px solid var(--color-b);
-      padding-left: calc(0.75rem - 3px);
+    .badge-settle {
+      background: var(--color-settle-light);
+      color: var(--color-settle);
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     .amount-cell {
@@ -363,9 +455,15 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .bill-type {
+    .muted-cell {
       color: var(--text-muted);
       font-size: 0.8rem;
+    }
+
+    .note-text {
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 0.78rem;
     }
 
     .empty-row td {
@@ -401,7 +499,6 @@
     @media (max-width: 500px) {
       body { padding: 0.75rem; font-size: 14px; }
       .settings-grid { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -413,14 +510,14 @@
 </header>
 
 <!-- Settlement -->
-<div class="card" id="settlementCard">
+<div class="card">
   <div class="card-title">Settlement</div>
   <div id="settlementContent"></div>
 </div>
 
-<!-- Add Payment -->
+<!-- Add Bill Payment -->
 <div class="card">
-  <div class="card-title">Add Payment</div>
+  <div class="card-title">Add Bill Payment</div>
   <div class="form-grid">
     <div class="form-group">
       <label for="inp-person">Who paid</label>
@@ -443,15 +540,61 @@
       <input type="date" id="inp-date">
     </div>
     <div class="form-group">
-      <label for="inp-period-month">Billing period</label>
-      <select id="inp-period-month"></select>
+      <label for="inp-from-month">Period from</label>
+      <select id="inp-from-month"></select>
     </div>
     <div class="form-group">
-      <label for="inp-period-year">&nbsp;</label>
-      <input type="number" id="inp-period-year" placeholder="2025" min="2000" max="2099">
+      <label for="inp-from-year">&nbsp;</label>
+      <input type="number" id="inp-from-year" placeholder="2025" min="2000" max="2099">
+    </div>
+    <div class="form-group">
+      <label for="inp-to-month">Period to</label>
+      <select id="inp-to-month"></select>
+    </div>
+    <div class="form-group">
+      <label for="inp-to-year">&nbsp;</label>
+      <input type="number" id="inp-to-year" placeholder="2025" min="2000" max="2099">
     </div>
   </div>
   <button class="btn btn-primary" onclick="addPayment()">Add Payment</button>
+</div>
+
+<!-- Record Settlement Payment -->
+<div class="card">
+  <details id="spDetails">
+    <summary>
+      <div class="summary-inner">
+        <span class="card-title" style="margin:0">Record Settlement Payment</span>
+      </div>
+      <span class="summary-chevron">&#9660;</span>
+    </summary>
+    <div style="margin-top:0.875rem">
+      <p class="form-hint">A direct cash payment from one person to the other to reduce the current debt — not split 50/50.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="sp-person">Who paid</label>
+          <select id="sp-person" onchange="updateSpPaidTo()"></select>
+        </div>
+        <div class="form-group">
+          <label for="sp-paid-to">Paid to</label>
+          <input type="text" id="sp-paid-to" readonly>
+        </div>
+        <div class="form-group">
+          <label for="sp-amount">Amount (&#8362;)</label>
+          <input type="number" id="sp-amount" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="sp-date">Date</label>
+          <input type="date" id="sp-date">
+        </div>
+        <div class="form-group">
+          <label for="sp-note">Note (optional)</label>
+          <input type="text" id="sp-note" placeholder="e.g. bank transfer, cash">
+        </div>
+      </div>
+      <button class="btn btn-emerald" onclick="addSettlementPayment()">Record Settlement Payment</button>
+    </div>
+  </details>
 </div>
 
 <!-- Filter -->
@@ -488,7 +631,7 @@
   </details>
 </div>
 
-<!-- Bills Table -->
+<!-- Payments Table -->
 <div class="card">
   <div class="card-title">Payments <span id="rowCount" style="font-weight:400;color:var(--text-muted)"></span></div>
   <div class="table-wrap">
@@ -497,9 +640,9 @@
         <tr>
           <th>Date</th>
           <th>Who paid</th>
-          <th>Bill</th>
+          <th>Type</th>
           <th>Amount</th>
-          <th>Period</th>
+          <th>Period / To</th>
           <th></th>
         </tr>
       </thead>
@@ -537,26 +680,39 @@
   const MONTHS = ['January','February','March','April','May','June',
                   'July','August','September','October','November','December'];
 
-  const MONTH_OPTS = MONTHS.map((m, i) =>
-    `<option value="${i + 1}">${m}</option>`).join('');
-
+  const MONTH_OPTS     = MONTHS.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
   const MONTH_OPTS_ANY = '<option value="">Any</option>' + MONTH_OPTS;
 
   /* ── State ── */
-  let payments = [];
+  let entries  = [];   // mixed: bills (kind='bill') and settlements (kind='settlement')
   let settings = { nameA: 'Person A', nameB: 'Person B' };
 
+  /* ── Persistence ── */
   function load() {
     try {
-      payments = JSON.parse(localStorage.getItem('bt_payments') || '[]');
+      // Support old key 'bt_payments' and new key 'bt_entries'
+      const raw = localStorage.getItem('bt_entries') || localStorage.getItem('bt_payments') || '[]';
+      entries = JSON.parse(raw).map(migrate);
       settings = JSON.parse(localStorage.getItem('bt_settings') || '{}');
       settings.nameA = settings.nameA || 'Person A';
       settings.nameB = settings.nameB || 'Person B';
-    } catch(e) {}
+    } catch(e) { entries = []; }
   }
 
-  function savePayments() {
-    localStorage.setItem('bt_payments', JSON.stringify(payments));
+  function migrate(p) {
+    // Assign kind if missing
+    if (!p.kind) p.kind = 'bill';
+    // Convert old single-month period to periodFrom/periodTo
+    if (p.kind === 'bill' && p.periodMonth && !p.periodFrom) {
+      p.periodFrom = { month: p.periodMonth, year: p.periodYear };
+      p.periodTo   = { month: p.periodMonth, year: p.periodYear };
+    }
+    return p;
+  }
+
+  function save() {
+    localStorage.setItem('bt_entries', JSON.stringify(entries));
+    localStorage.removeItem('bt_payments'); // clean up old key
   }
 
   function saveSettings() {
@@ -564,10 +720,11 @@
   }
 
   /* ── Helpers ── */
-  function name(p) { return p === 'A' ? settings.nameA : settings.nameB; }
+  function name(p)  { return p === 'A' ? settings.nameA : settings.nameB; }
+  function other(p) { return p === 'A' ? 'B' : 'A'; }
 
   function fmt(n) {
-    return '₪' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return '&#8362;' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
   function fmtDate(iso) {
@@ -576,12 +733,23 @@
     return `${d}/${m}/${y}`;
   }
 
-  function fmtPeriod(month, year) {
-    return `${MONTHS[month - 1]} ${year}`;
+  function fmtPeriod(from, to) {
+    if (!from || !to) return '';
+    if (from.year === to.year && from.month === to.month) {
+      return `${MONTHS[from.month - 1]} ${from.year}`;
+    }
+    if (from.year === to.year) {
+      return `${MONTHS[from.month - 1]} – ${MONTHS[to.month - 1]} ${from.year}`;
+    }
+    return `${MONTHS[from.month - 1]} ${from.year} – ${MONTHS[to.month - 1]} ${to.year}`;
   }
 
   function periodVal(month, year) {
     return parseInt(year) * 12 + parseInt(month);
+  }
+
+  function newId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
   }
 
   /* ── Filter ── */
@@ -595,38 +763,38 @@
   }
 
   function isFilterActive(f) {
-    return f.fromMonth || f.fromYear || f.toMonth || f.toYear;
+    return !!(f.fromMonth || f.fromYear || f.toMonth || f.toYear);
   }
 
-  function inRange(p, f) {
-    const v = periodVal(p.periodMonth, p.periodYear);
-    let lo = -Infinity, hi = Infinity;
-    if (f.fromYear) {
-      lo = periodVal(f.fromMonth || 1, f.fromYear);
-    }
-    if (f.toYear) {
-      hi = periodVal(f.toMonth || 12, f.toYear);
-    }
-    return v >= lo && v <= hi;
+  function billOverlapsFilter(b, f) {
+    // Overlap: bill range [billLo, billHi] overlaps filter range [filterLo, filterHi]
+    // iff billLo <= filterHi AND billHi >= filterLo
+    const billLo = periodVal(b.periodFrom.month, b.periodFrom.year);
+    const billHi = periodVal(b.periodTo.month,   b.periodTo.year);
+    let filterLo = -Infinity, filterHi = Infinity;
+    if (f.fromYear) filterLo = periodVal(f.fromMonth || 1,  f.fromYear);
+    if (f.toYear)   filterHi = periodVal(f.toMonth   || 12, f.toYear);
+    return billLo <= filterHi && billHi >= filterLo;
   }
 
   function clearFilter() {
     ['f-from-month','f-from-year','f-to-month','f-to-year'].forEach(id => {
-      const el = document.getElementById(id);
-      el.value = '';
+      document.getElementById(id).value = '';
     });
     render();
   }
 
-  /* ── Add / Delete ── */
+  /* ── Add bill payment ── */
   function addPayment() {
-    const person      = document.getElementById('inp-person').value;
-    const billType    = document.getElementById('inp-bill').value;
-    const amountStr   = document.getElementById('inp-amount').value;
-    const dateVal     = document.getElementById('inp-date').value;
-    const periodMonth = parseInt(document.getElementById('inp-period-month').value);
-    const periodYear  = parseInt(document.getElementById('inp-period-year').value);
-    const amount      = parseFloat(amountStr);
+    const person     = document.getElementById('inp-person').value;
+    const billType   = document.getElementById('inp-bill').value;
+    const amountStr  = document.getElementById('inp-amount').value;
+    const dateVal    = document.getElementById('inp-date').value;
+    const fromMonth  = parseInt(document.getElementById('inp-from-month').value);
+    const fromYear   = parseInt(document.getElementById('inp-from-year').value);
+    const toMonth    = parseInt(document.getElementById('inp-to-month').value);
+    const toYear     = parseInt(document.getElementById('inp-to-year').value);
+    const amount     = parseFloat(amountStr);
 
     if (!amountStr || isNaN(amount) || amount <= 0) {
       alert('Please enter a valid amount greater than 0.'); return;
@@ -634,128 +802,243 @@
     if (!dateVal) {
       alert('Please select a payment date.'); return;
     }
-    if (!periodYear || periodYear < 2000 || periodYear > 2099) {
-      alert('Please enter a valid period year.'); return;
+    if (!fromYear || fromYear < 2000 || fromYear > 2099) {
+      alert('Please enter a valid "From" year.'); return;
+    }
+    if (!toYear || toYear < 2000 || toYear > 2099) {
+      alert('Please enter a valid "To" year.'); return;
+    }
+    if (periodVal(fromMonth, fromYear) > periodVal(toMonth, toYear)) {
+      alert('"Period from" cannot be after "Period to".'); return;
     }
 
-    payments.unshift({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+    entries.unshift({
+      id: newId(), kind: 'bill',
       person, billType, amount,
       paymentDate: dateVal,
-      periodMonth, periodYear
+      periodFrom: { month: fromMonth, year: fromYear },
+      periodTo:   { month: toMonth,   year: toYear   },
     });
 
-    savePayments();
+    save();
     document.getElementById('inp-amount').value = '';
     render();
   }
 
-  function deletePayment(id) {
-    if (!confirm('Delete this payment?')) return;
-    payments = payments.filter(p => p.id !== id);
-    savePayments();
+  /* ── Add settlement payment ── */
+  function addSettlementPayment() {
+    const paidBy    = document.getElementById('sp-person').value;
+    const amountStr = document.getElementById('sp-amount').value;
+    const dateVal   = document.getElementById('sp-date').value;
+    const note      = document.getElementById('sp-note').value.trim();
+    const amount    = parseFloat(amountStr);
+
+    if (!amountStr || isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid amount greater than 0.'); return;
+    }
+    if (!dateVal) {
+      alert('Please select a date.'); return;
+    }
+
+    entries.unshift({
+      id: newId(), kind: 'settlement',
+      paidBy, amount,
+      date: dateVal,
+      note,
+    });
+
+    save();
+    document.getElementById('sp-amount').value = '';
+    document.getElementById('sp-note').value   = '';
     render();
   }
 
-  /* ── Render settlement ── */
-  function renderSettlement(filtered) {
-    const totalA = filtered.filter(p => p.person === 'A').reduce((s, p) => s + p.amount, 0);
-    const totalB = filtered.filter(p => p.person === 'B').reduce((s, p) => s + p.amount, 0);
-    const total  = totalA + totalB;
-    const each   = total / 2;
-    const diff   = Math.round(Math.abs(totalA - totalB) * 100 / 2) / 100;
+  function updateSpPaidTo() {
+    const paidBy = document.getElementById('sp-person').value;
+    document.getElementById('sp-paid-to').value = name(other(paidBy));
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    entries = entries.filter(e => e.id !== id);
+    save();
+    render();
+  }
+
+  /* ── Render settlement card ── */
+  function renderSettlement(filteredBills, allSettlements) {
+    const billsA = filteredBills.filter(b => b.person === 'A').reduce((s, b) => s + b.amount, 0);
+    const billsB = filteredBills.filter(b => b.person === 'B').reduce((s, b) => s + b.amount, 0);
+    const totalBills = billsA + billsB;
+    const eachOwes   = totalBills / 2;
+    // billsBalance > 0  → B owes A
+    // billsBalance < 0  → A owes B
+    const billsBalance = (billsA - billsB) / 2;
+
+    // Settlement payments: paidBy=B means B paid A (reduces B's debt to A)
+    //                      paidBy=A means A paid B (reduces A's debt to B, i.e. increases billsBalance)
+    const settleBtoA = allSettlements.filter(s => s.paidBy === 'B').reduce((s, x) => s + x.amount, 0);
+    const settleAtoB = allSettlements.filter(s => s.paidBy === 'A').reduce((s, x) => s + x.amount, 0);
+    const totalSettlements = settleBtoA + settleAtoB;
+
+    // finalBalance: positive = B owes A, negative = A owes B
+    const finalBalance = billsBalance - settleBtoA + settleAtoB;
+    const absFinal = Math.round(Math.abs(finalBalance) * 100) / 100;
 
     const nameA = name('A'), nameB = name('B');
 
+    // Determine result box
     let cls, msg, amountHtml;
-
-    if (total === 0) {
+    if (totalBills === 0 && totalSettlements === 0) {
       cls        = 'settled';
-      msg        = 'No payments to show for this period.';
+      msg        = 'No payments recorded yet.';
       amountHtml = '';
-    } else if (diff < 0.01) {
+    } else if (absFinal < 0.01) {
       cls        = 'settled';
       msg        = "You're settled up!";
-      amountHtml = '<div class="settlement-amount">&#8362;0</div>';
-    } else if (totalA > totalB) {
+      amountHtml = `<div class="settlement-amount">&#8362;0</div>`;
+    } else if (finalBalance > 0) {
       cls        = 'owes-a';
       msg        = `<strong>${nameB}</strong> owes <strong>${nameA}</strong>`;
-      amountHtml = `<div class="settlement-amount">${fmt(diff)}</div>`;
+      amountHtml = `<div class="settlement-amount">${fmt(absFinal)}</div>`;
     } else {
       cls        = 'owes-b';
       msg        = `<strong>${nameA}</strong> owes <strong>${nameB}</strong>`;
-      amountHtml = `<div class="settlement-amount">${fmt(diff)}</div>`;
+      amountHtml = `<div class="settlement-amount">${fmt(absFinal)}</div>`;
     }
 
-    const statsHtml = total > 0 ? `
+    // Bills stats section
+    const statsHtml = totalBills > 0 ? `
       <div class="stats-row">
         <div class="stat a">
           <div class="stat-name">${nameA}</div>
-          <div class="stat-amount">${fmt(totalA)}</div>
-          <div class="stat-sub">paid</div>
+          <div class="stat-amount">${fmt(billsA)}</div>
+          <div class="stat-sub">bills paid</div>
         </div>
         <div class="stat b">
           <div class="stat-name">${nameB}</div>
-          <div class="stat-amount">${fmt(totalB)}</div>
-          <div class="stat-sub">paid</div>
+          <div class="stat-amount">${fmt(billsB)}</div>
+          <div class="stat-sub">bills paid</div>
         </div>
       </div>
-      <div class="total-line">Total: ${fmt(total)} &nbsp;&middot;&nbsp; Each owes: ${fmt(each)}</div>
+      <div class="total-line">
+        Total bills: ${fmt(totalBills)}&nbsp;&middot;&nbsp;Each owes: ${fmt(eachOwes)}
+      </div>
     ` : '';
 
+    // Settlement payments section
+    let settleHtml = '';
+    if (totalSettlements > 0) {
+      const items = [
+        settleBtoA > 0
+          ? `<div class="settle-item">
+               <span class="person-badge badge-b">${nameB}</span>
+               <span class="arrow-text">paid</span>
+               <span class="person-badge badge-a">${nameA}</span>
+               <strong>${fmt(settleBtoA)}</strong>
+             </div>` : '',
+        settleAtoB > 0
+          ? `<div class="settle-item">
+               <span class="person-badge badge-a">${nameA}</span>
+               <span class="arrow-text">paid</span>
+               <span class="person-badge badge-b">${nameB}</span>
+               <strong>${fmt(settleAtoB)}</strong>
+             </div>` : '',
+      ].join('');
+
+      settleHtml = `
+        <div class="settle-section">
+          <div class="settle-section-title">Settlement payments</div>
+          ${items}
+        </div>
+      `;
+    }
+
     document.getElementById('settlementContent').innerHTML = `
+      ${statsHtml}
+      ${settleHtml}
       <div class="settlement-box ${cls}">
         <div class="settlement-msg">${msg}</div>
         ${amountHtml}
       </div>
-      ${statsHtml}
     `;
   }
 
   /* ── Render table ── */
-  function renderTable(filtered) {
+  function renderTable(rows) {
     const tbody = document.getElementById('billsBody');
     const count = document.getElementById('rowCount');
 
-    if (filtered.length === 0) {
+    if (rows.length === 0) {
       tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No payments found.</td></tr>`;
       count.textContent = '';
       return;
     }
 
-    count.textContent = `(${filtered.length})`;
+    count.textContent = `(${rows.length})`;
 
-    tbody.innerHTML = filtered.map(p => `
-      <tr class="row-${p.person.toLowerCase()}">
-        <td>${fmtDate(p.paymentDate)}</td>
-        <td><span class="person-badge badge-${p.person.toLowerCase()}">${name(p.person)}</span></td>
-        <td class="bill-type">${p.billType}</td>
-        <td class="amount-cell">${fmt(p.amount)}</td>
-        <td class="bill-type">${fmtPeriod(p.periodMonth, p.periodYear)}</td>
-        <td><button class="btn-delete" title="Delete" onclick="deletePayment('${p.id}')">&#10005;</button></td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = rows.map(e => {
+      if (e.kind === 'settlement') {
+        const paidTo = name(other(e.paidBy));
+        const noteHtml = e.note
+          ? ` <span class="note-text">&middot; ${e.note}</span>` : '';
+        return `
+          <tr class="row-settle">
+            <td>${fmtDate(e.date)}</td>
+            <td><span class="person-badge badge-${e.paidBy.toLowerCase()}">${name(e.paidBy)}</span></td>
+            <td><span class="badge-settle">Settlement</span>${noteHtml}</td>
+            <td class="amount-cell">${fmt(e.amount)}</td>
+            <td class="muted-cell">→ ${paidTo}</td>
+            <td><button class="btn-delete" title="Delete" onclick="deleteEntry('${e.id}')">&#10005;</button></td>
+          </tr>`;
+      }
+
+      // Bill row
+      return `
+        <tr class="row-${e.person.toLowerCase()}">
+          <td>${fmtDate(e.paymentDate)}</td>
+          <td><span class="person-badge badge-${e.person.toLowerCase()}">${name(e.person)}</span></td>
+          <td class="muted-cell">${e.billType}</td>
+          <td class="amount-cell">${fmt(e.amount)}</td>
+          <td class="muted-cell">${fmtPeriod(e.periodFrom, e.periodTo)}</td>
+          <td><button class="btn-delete" title="Delete" onclick="deleteEntry('${e.id}')">&#10005;</button></td>
+        </tr>`;
+    }).join('');
   }
 
   /* ── Main render ── */
   function render() {
     const f = getFilter();
     const active = isFilterActive(f);
-    const filtered = active ? payments.filter(p => inRange(p, f)) : payments;
 
     document.getElementById('filterBadge').style.display = active ? 'inline-block' : 'none';
 
-    // Update person select labels
-    const pSel = document.getElementById('inp-person');
-    pSel.options[0].text = settings.nameA;
-    pSel.options[1].text = settings.nameB;
+    const allBills       = entries.filter(e => e.kind === 'bill');
+    const allSettlements = entries.filter(e => e.kind === 'settlement');
+    const filteredBills  = active ? allBills.filter(b => billOverlapsFilter(b, f)) : allBills;
+
+    // Table shows filtered bills + all settlements, sorted by date descending
+    const tableRows = [...filteredBills, ...allSettlements].sort((a, b) => {
+      const da = a.kind === 'settlement' ? a.date       : a.paymentDate;
+      const db = b.kind === 'settlement' ? b.date       : b.paymentDate;
+      return db.localeCompare(da);
+    });
+
+    // Update person select options
+    const pSel  = document.getElementById('inp-person');
+    const spSel = document.getElementById('sp-person');
+    pSel.options[0].text  = settings.nameA;
+    pSel.options[1].text  = settings.nameB;
+    spSel.options[0].text = settings.nameA;
+    spSel.options[1].text = settings.nameB;
+    updateSpPaidTo();
 
     // Name previews
     document.getElementById('preview-a').textContent = settings.nameA;
     document.getElementById('preview-b').textContent = settings.nameB;
 
-    renderSettlement(filtered);
-    renderTable(filtered);
+    renderSettlement(filteredBills, allSettlements);
+    renderTable(tableRows);
   }
 
   /* ── Init ── */
@@ -763,46 +1046,68 @@
     load();
 
     // Populate month selects
-    document.getElementById('inp-period-month').innerHTML = MONTH_OPTS;
-    document.getElementById('f-from-month').innerHTML     = MONTH_OPTS_ANY;
-    document.getElementById('f-to-month').innerHTML       = MONTH_OPTS_ANY;
+    document.getElementById('inp-from-month').innerHTML = MONTH_OPTS;
+    document.getElementById('inp-to-month').innerHTML   = MONTH_OPTS;
+    document.getElementById('f-from-month').innerHTML   = MONTH_OPTS_ANY;
+    document.getElementById('f-to-month').innerHTML     = MONTH_OPTS_ANY;
 
-    // Person select
-    document.getElementById('inp-person').innerHTML =
-      '<option value="A">Person A</option><option value="B">Person B</option>';
+    // Person selects
+    const personOpts = '<option value="A">Person A</option><option value="B">Person B</option>';
+    document.getElementById('inp-person').innerHTML = personOpts;
+    document.getElementById('sp-person').innerHTML  = personOpts;
 
     // Default form values
     const now = new Date();
-    document.getElementById('inp-date').value          = now.toISOString().split('T')[0];
-    document.getElementById('inp-period-month').value  = now.getMonth() + 1;
-    document.getElementById('inp-period-year').value   = now.getFullYear();
+    const todayIso = now.toISOString().split('T')[0];
+    const curMonth = now.getMonth() + 1;
+    const curYear  = now.getFullYear();
+
+    document.getElementById('inp-date').value        = todayIso;
+    document.getElementById('inp-from-month').value  = curMonth;
+    document.getElementById('inp-from-year').value   = curYear;
+    document.getElementById('inp-to-month').value    = curMonth;
+    document.getElementById('inp-to-year').value     = curYear;
+    document.getElementById('sp-date').value         = todayIso;
 
     // Settings fields
     document.getElementById('s-name-a').value = settings.nameA;
     document.getElementById('s-name-b').value = settings.nameB;
 
-    // Settings listeners
     document.getElementById('s-name-a').addEventListener('input', e => {
       settings.nameA = e.target.value.trim() || 'Person A';
-      saveSettings();
-      render();
+      saveSettings(); render();
     });
-
     document.getElementById('s-name-b').addEventListener('input', e => {
       settings.nameB = e.target.value.trim() || 'Person B';
-      saveSettings();
-      render();
+      saveSettings(); render();
     });
 
-    // Filter change listeners
+    // Filter listeners
     ['f-from-month','f-from-year','f-to-month','f-to-year'].forEach(id => {
       document.getElementById(id).addEventListener('change', render);
       document.getElementById(id).addEventListener('input',  render);
     });
 
-    // Allow Enter in amount field to submit
+    // Auto-sync "Period to" when "Period from" changes, keeping to >= from
+    function syncPeriodTo() {
+      const fM = parseInt(document.getElementById('inp-from-month').value);
+      const fY = parseInt(document.getElementById('inp-from-year').value);
+      const tM = parseInt(document.getElementById('inp-to-month').value);
+      const tY = parseInt(document.getElementById('inp-to-year').value);
+      if (fY && tY && periodVal(fM, fY) > periodVal(tM, tY)) {
+        document.getElementById('inp-to-month').value = fM;
+        document.getElementById('inp-to-year').value  = fY;
+      }
+    }
+    document.getElementById('inp-from-month').addEventListener('change', syncPeriodTo);
+    document.getElementById('inp-from-year').addEventListener('change',  syncPeriodTo);
+
+    // Enter to submit amount fields
     document.getElementById('inp-amount').addEventListener('keydown', e => {
       if (e.key === 'Enter') addPayment();
+    });
+    document.getElementById('sp-amount').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addSettlementPayment();
     });
 
     render();
